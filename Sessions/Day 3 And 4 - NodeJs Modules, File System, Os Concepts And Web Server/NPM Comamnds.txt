@@ -1,0 +1,17 @@
+
+
+Install a package --> npm install <package_name> OR  npm i <package_name>
+
+Install a package as Dev Dependency --> npm install <package_name> --save-dev OR  npm i <package_name> -D
+
+Install a package as Dependency --> npm install <package_name> --save OR  npm i <package_name> -S
+
+Install a package globally --> npm install <package_name> -g
+
+Update a single npm package --> npm update <package_name> --save/--save-dev/-g
+{
+    package_name : "^1.0.0" //update 1.1.0 from [1.0.1, 1.0.2, ...1.0.9, 1.1.0]
+    package_name : "~1.0.0" //update 1.0.9 from [1.0.1, 1.0.2, ...1.0.9, 1.1.0]
+}
+
+Update all packages from package.json --> npm update --save/--save-dev/-g
