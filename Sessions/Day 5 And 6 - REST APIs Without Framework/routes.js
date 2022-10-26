@@ -1,5 +1,6 @@
 
 const url = require('url');
+const { listDbs, insertUser } = require('./db');
 
 const requestHandler = (req, res) => {
     switch (req.method) {
@@ -15,7 +16,7 @@ const requestHandler = (req, res) => {
     }
 }
 
-const handleGetRequests = (req, res) => {
+const handleGetRequests = async (req, res) => {
     const parsedUrl = url.parse(req.url, true);
     // console.log(`Path Name: ${parsedUrl.pathname}`);
     // console.log(`URL Query: ${parsedUrl.query}`);
@@ -25,13 +26,16 @@ const handleGetRequests = (req, res) => {
 
     //endpoint to get the users
     if (parsedUrl.pathname === '/users') {
+
+        await listDbs();
+
         let pageSize = null;
         if (parsedUrl.query && parsedUrl.query.pageSize) {
             pageSize = parseInt(parsedUrl.query.pageSize);
         }
         // const res = db.users.find().limit(parsedUrl.query.pageSize);
         // if (res.length) {
-        res.setHeader("Content-Type", "text/css");
+        res.setHeader("Content-Type", "application/json");
         res.end(JSON.stringify({
             msg: 'Data received successfully', items: [
                 {
@@ -52,7 +56,7 @@ const handleGetRequests = (req, res) => {
     }
 }
 
-//axios.post('http://localhost:8080/user', { username: '', password: ''});
+//axios.post('http://localhost:8080/user', {"name": "abc", "age": 18, "address": "" });
 
 //HTTP Method
 //GET - Read
@@ -67,26 +71,31 @@ const handlePostRequests = (req, res) => {
     const parsedUrl = url.parse(req.url);
     if (parsedUrl.pathname === '/users') {
         let data = '';
-
         req.on('data', chunk => {
             data += chunk;
-            console.log(chunk);
         });
 
-        req.on('end', () => {
+        req.on('end', async () => {
             const requestBody = JSON.parse(data);
-            if (requestBody && requestBody.username && requestBody.password) {
-                // const res = db.users.insertOne(requestBody);
-                // if (res.length) {
-                res.setHeader("Content-Type", "application/json");
-                res.end(JSON.stringify({
-                    msg: 'User is Successfully Created/Signed up'
-                }));
-                // }   
+            if (requestBody && requestBody.name && requestBody.age && requestBody.address) {
+                const dbResult = await insertUser(requestBody);
+                if (dbResult.success) {
+                    res.setHeader("Content-Type", "application/json");
+                    res.writeHead(201);
+                    res.end(JSON.stringify({
+                        msg: 'User is Successfully inserted',
+                        userId: dbResult.data.insertedId
+                    }));
+                } else if (dbResult.error) {
+                    res.writeHead(400);
+                    res.end(JSON.stringify({
+                        error: 'Unable to create the user'
+                    }));
+                }
             } else {
-                res.writeHead(402);
                 res.setHeader("Content-Type", "application/json");
-                res.end({ msg: 'Wrong Data Received!' })
+                res.writeHead(402);
+                res.end(JSON.stringify({ msg: 'Wrong Data Received!' }));
             }
         });
 
@@ -100,5 +109,14 @@ const handlePostRequests = (req, res) => {
 
 module.exports = requestHandler;
 
-//pagination
+//pagination GET API example
 //http://mock-api.com?pageNumber=1&pageSize=10
+
+// ### CORS explanation ###
+//www.example.com - front-end
+//www.example.com - back-end(same origin)
+//www.xyz.com - api/web server url(different origin)
+
+//browser checks for the origin of calling place and server if they are same then sends the
+//command to the server or else if server contains a CORS config of requesting calls from any origin OR a
+// specific origin else browser rejects the request to be served from the browser
