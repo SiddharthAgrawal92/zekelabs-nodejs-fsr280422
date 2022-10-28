@@ -1,6 +1,12 @@
 
 const url = require('url');
-const { listDbs, insertUser } = require('./db');
+const { listDbs, insertUser, getUsers } = require('./db');
+
+const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-headers': '*',
+    'Content-Type': 'application/json'
+}
 
 const requestHandler = (req, res) => {
     switch (req.method) {
@@ -9,6 +15,10 @@ const requestHandler = (req, res) => {
             break;
         case 'POST':
             handlePostRequests(req, res);
+            break;
+        case 'OPTIONS':
+            res.writeHead(204, headers);
+            res.end();
             break;
         default:
             res.writeHead(404);
@@ -27,30 +37,32 @@ const handleGetRequests = async (req, res) => {
     //endpoint to get the users
     if (parsedUrl.pathname === '/users') {
 
-        await listDbs();
+        // await listDbs();
 
-        let pageSize = null;
-        if (parsedUrl.query && parsedUrl.query.pageSize) {
-            pageSize = parseInt(parsedUrl.query.pageSize);
+        let limit = null;
+        if (parsedUrl.query && parsedUrl.query.limit) {
+            limit = parseInt(parsedUrl.query.limit);
         }
-        // const res = db.users.find().limit(parsedUrl.query.pageSize);
-        // if (res.length) {
-        res.setHeader("Content-Type", "application/json");
-        res.end(JSON.stringify({
-            msg: 'Data received successfully', items: [
-                {
-                    _id: 1,
-                    name: 'Sid',
-                    address: ''
-                },
-                {
-                    _id: 2,
-                    name: 'Adam',
-                    address: ''
-                }
-            ]
-        }));
-        // }
+
+        let skip = null;
+        if (parsedUrl.query && parsedUrl.query.skip) {
+            skip = parseInt(parsedUrl.query.skip);
+        }
+
+        //write a API doc for server REST APIs telling the front-end that allowed query params are
+        //1. limit
+        //2. skip
+
+        const dbResult = await getUsers(limit, skip);
+
+        if (dbResult.success) {
+            res.writeHead(200, headers);
+            res.end(JSON.stringify(dbResult.data));
+        } else if (dbResult.error) {
+            res.setHeader("Content-Type", "application/json");
+            res.writeHead(500);
+            res.end(JSON.stringify({ error: 'Internal Server Error' }));
+        }
     } else if (parsedUrl.pathname === '/items') {
         //another API endpoint for getting items from db
     }
@@ -80,8 +92,7 @@ const handlePostRequests = (req, res) => {
             if (requestBody && requestBody.name && requestBody.age && requestBody.address) {
                 const dbResult = await insertUser(requestBody);
                 if (dbResult.success) {
-                    res.setHeader("Content-Type", "application/json");
-                    res.writeHead(201);
+                    res.writeHead(201, headers);
                     res.end(JSON.stringify({
                         msg: 'User is Successfully inserted',
                         userId: dbResult.data.insertedId
@@ -120,3 +131,31 @@ module.exports = requestHandler;
 //browser checks for the origin of calling place and server if they are same then sends the
 //command to the server or else if server contains a CORS config of requesting calls from any origin OR a
 // specific origin else browser rejects the request to be served from the browser
+
+//send a preflight to the server to check for the configuration
+
+//case 1
+//analytics engine from where data is being stored in the db(cluster)
+//nodejs will use the pre-stored data to generate a meaningful data out of it.
+
+//case 2 (e-commerce)
+//front-end for inventory(to store the products)
+//server-APIs for doing CRUD of products --> POST http://localhost:8080/product , {product object}
+//product (db) --> grocery (collection) --> document
+
+//DB cluster will be blank
+
+//10,000 records we have in database
+
+//total number of records = 10,000
+//number of record in one page = 5
+
+//1. call to server to give me 5 records
+// {
+//     totalRecords: 10,000,
+//     userList: {5}
+// }
+
+//DB Queries parsing
+//GET Request
+//Resolving CORS

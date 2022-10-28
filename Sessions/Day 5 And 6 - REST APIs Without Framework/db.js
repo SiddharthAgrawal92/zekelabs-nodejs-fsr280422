@@ -1,6 +1,6 @@
+const { MongoClient } = require('mongodb');
 
 const getDBClient = async () => {
-    const { MongoClient } = require('mongodb');
     const connectionString = 'mongodb+srv://sid1605:sT2kdICiGGtnsmgz@cluster1.tbllfyp.mongodb.net/test';
     //username - sid1605
     //password - sT2kdICiGGtnsmgz
@@ -51,7 +51,42 @@ const insertUser = async (userData) => {
             }
         }
     } catch (e) {
+        console.log(e);
+        return {
+            error: true,
+            msg: 'Something went wrong at the DB side'
+        }
+    } finally {
+        await client.close();
+    }
+}
+
+const getUsers = async (limitDocs, skipDocs) => {
+    const client = await getDBClient().catch(err => {
         console.log(err);
+        return {
+            error: true,
+            msg: 'Something went while creating a DB client instance'
+        }
+    });
+    try {
+        //connects to the mongodb cluster connection string using the credentials
+        await client.connect();
+        const result = await client.db('company').collection('users').find().skip(skipDocs).limit(limitDocs).toArray();
+        const totalCount = await client.db('company').collection('users').find().count();
+        if (result) {
+            return {
+                success: true,
+                data: { userList: result, totalRecords: totalCount },
+            }
+        } else {
+            return {
+                error: true,
+                msg: 'Something went while inserting the data in the DB'
+            }
+        }
+    } catch (e) {
+        console.log(e);
         return {
             error: true,
             msg: 'Something went wrong at the DB side'
@@ -63,5 +98,6 @@ const insertUser = async (userData) => {
 
 module.exports = {
     listDbs,
-    insertUser
+    insertUser,
+    getUsers
 }
