@@ -1,6 +1,6 @@
 
 const url = require('url');
-const { listDbs, insertUser, getUsers } = require('./db');
+const { listDbs, insertUser, getUsers, updateUser, deleteUser } = require('./db');
 
 const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -19,6 +19,12 @@ const requestHandler = (req, res) => {
         case 'OPTIONS':
             res.writeHead(204, headers);
             res.end();
+            break;
+        case 'PUT':
+            handlePutRequests(req, res);
+            break;
+        case 'DELETE':
+            handleDeleteRequests(req, res);
             break;
         default:
             res.writeHead(404);
@@ -118,6 +124,52 @@ const handlePostRequests = (req, res) => {
     }
 }
 
+const handlePutRequests = (req, res) => {
+    const parsedUrl = url.parse(req.url, true);
+    const endpoint = parsedUrl.pathname.split('/').slice(1); // "/users/635be913b38ccc29f701989c" --> ['', 'users', '635be913b38ccc29f701989c'] --> ['users', '635be913b38ccc29f701989c']
+    if (endpoint[0] === 'users') { //endpoint[1] = userId
+        let data = '';
+        req.on('data', chunk => {
+            data += chunk;
+        });
+
+        req.on('end', async () => {
+            const requestBody = JSON.parse(data);
+            if (requestBody && requestBody.name || requestBody.age || requestBody.address) {
+                const dbResult = await updateUser(endpoint[1], requestBody);
+                res.writeHead(dbResult.statusCode, headers);
+                res.end(JSON.stringify({
+                    msg: dbResult.msg,
+                    userDetail: dbResult.data
+                }));
+            } else {
+                res.setHeader("Content-Type", "application/json");
+                res.writeHead(400);
+                res.end(JSON.stringify({ msg: 'Wrong Data Received!' }));
+            }
+        });
+    }
+}
+
+//front end --> axios.delete('http://localhost:8080/users/635be913b38ccc29f701989c');
+const handleDeleteRequests = async (req, res) => {
+    const parsedUrl = url.parse(req.url, true);
+    const endpoint = parsedUrl.pathname.split('/').slice(1); // "/users/635be913b38ccc29f701989c" --> ['', 'users', '635be913b38ccc29f701989c'] --> ['users', '635be913b38ccc29f701989c']
+    if (endpoint[0] === 'users') { //endpoint[1] = userId
+        if (endpoint[1]) {
+            const dbResult = await deleteUser(endpoint[1]);
+            res.writeHead(dbResult.statusCode, headers);
+            res.end(JSON.stringify({
+                msg: dbResult.msg
+            }));
+        } else {
+            res.setHeader("Content-Type", "application/json");
+            res.writeHead(400);
+            res.end(JSON.stringify({ msg: 'User ID is required' }));
+        }
+    }
+}
+
 module.exports = requestHandler;
 
 //pagination GET API example
@@ -159,3 +211,12 @@ module.exports = requestHandler;
 //DB Queries parsing
 //GET Request
 //Resolving CORS
+
+//const pagination = { numberOfRecordsPerPage: 3}
+//first call - GET skip=0&limit=3  --> response from server will contain total totalNoOfRecords,
+
+//react-js-pagination module
+
+//totalNoOfRecords - 8
+// numberOfRecordsPerPage - 3
+// Pagination UI - [1][2][3]..[10]

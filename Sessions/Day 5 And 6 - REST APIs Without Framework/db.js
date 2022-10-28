@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 
 const getDBClient = async () => {
     const connectionString = 'mongodb+srv://sid1605:sT2kdICiGGtnsmgz@cluster1.tbllfyp.mongodb.net/test';
@@ -96,8 +96,95 @@ const getUsers = async (limitDocs, skipDocs) => {
     }
 }
 
+const updateUser = async (userId, userData) => {
+    const client = await getDBClient().catch(err => {
+        console.log(err);
+        return {
+            error: true,
+            msg: 'Something went while creating a DB client instance'
+        }
+    });
+    try {
+        //connects to the mongodb cluster connection string using the credentials
+        await client.connect();
+        const result = await client.db('company').collection('users').findOneAndUpdate({ _id: ObjectId(userId) }, { $set: userData }, { returnDocument: 'after' });
+        if (result) {
+            if (result.value) {
+                return {
+                    statusCode: 200,
+                    msg: 'User is successfully updated',
+                    data: result.value
+                }
+            } else {
+                return {
+                    statusCode: 400,
+                    msg: 'User not updated/found',
+                    data: result.value
+                }
+            }
+        } else {
+            return {
+                statusCode: 500,
+                msg: 'Internal Server Error'
+            }
+        }
+    } catch (e) {
+        console.log(e);
+        return {
+            statusCode: 500,
+            msg: 'Internal Server Error'
+        }
+    } finally {
+        await client.close();
+    }
+}
+
+const deleteUser = async (userId) => {
+    const client = await getDBClient().catch(err => {
+        console.log(err);
+        return {
+            error: true,
+            msg: 'Something went while creating a DB client instance'
+        }
+    });
+    try {
+        //connects to the mongodb cluster connection string using the credentials
+        await client.connect();
+        const result = await client.db('company').collection('users').deleteOne({ _id: ObjectId(userId) });
+        if (result) {
+            if (result.deletedCount) {
+                return {
+                    statusCode: 200,
+                    msg: 'User is successfully deleted',
+                    data: result.value
+                }
+            } else {
+                return {
+                    statusCode: 400,
+                    msg: 'User not Found'
+                }
+            }
+        } else {
+            return {
+                statusCode: 500,
+                msg: 'Internal Server Error'
+            }
+        }
+    } catch (e) {
+        console.log(e);
+        return {
+            statusCode: 500,
+            msg: 'Internal Server Error'
+        }
+    } finally {
+        await client.close();
+    }
+}
+
 module.exports = {
     listDbs,
     insertUser,
-    getUsers
+    getUsers,
+    updateUser,
+    deleteUser
 }
