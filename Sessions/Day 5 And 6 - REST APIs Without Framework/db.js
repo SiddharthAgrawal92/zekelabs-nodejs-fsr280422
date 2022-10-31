@@ -61,6 +61,40 @@ const insertUser = async (userData) => {
     }
 }
 
+const insertManyUser = async (userData) => {
+    const client = await getDBClient().catch(err => {
+        console.log(err);
+        return {
+            error: true,
+            msg: 'Something went while creating a DB client instance'
+        }
+    });
+    try {
+        //connects to the mongodb cluster connection string using the credentials
+        await client.connect();
+        const result = await client.db('company').collection('users').insertMany(userData);
+        if (result.acknowledged) {
+            return {
+                success: true,
+                data: result
+            }
+        } else {
+            return {
+                error: true,
+                msg: 'Something went while inserting the data in the DB'
+            }
+        }
+    } catch (e) {
+        console.log(e);
+        return {
+            error: true,
+            msg: 'Something went wrong at the DB side'
+        }
+    } finally {
+        await client.close();
+    }
+}
+
 const getUsers = async (limitDocs, skipDocs) => {
     const client = await getDBClient().catch(err => {
         console.log(err);
@@ -73,7 +107,7 @@ const getUsers = async (limitDocs, skipDocs) => {
         //connects to the mongodb cluster connection string using the credentials
         await client.connect();
         const result = await client.db('company').collection('users').find().skip(skipDocs).limit(limitDocs).toArray();
-        const totalCount = await client.db('company').collection('users').find().count();
+        const totalCount = await client.db('company').collection('users').countDocuments();
         if (result) {
             return {
                 success: true,
@@ -143,6 +177,7 @@ const deleteUser = async (userId) => {
     const client = await getDBClient().catch(err => {
         console.log(err);
         return {
+            statusCode: 500,
             error: true,
             msg: 'Something went while creating a DB client instance'
         }
@@ -186,5 +221,6 @@ module.exports = {
     insertUser,
     getUsers,
     updateUser,
-    deleteUser
+    deleteUser,
+    insertManyUser
 }

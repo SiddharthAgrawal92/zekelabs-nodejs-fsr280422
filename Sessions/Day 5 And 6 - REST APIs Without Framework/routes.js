@@ -1,9 +1,10 @@
 
 const url = require('url');
-const { listDbs, insertUser, getUsers, updateUser, deleteUser } = require('./db');
+const { listDbs, insertUser, getUsers, updateUser, deleteUser, insertManyUser } = require('./db');
 
 const headers = {
     'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'DELETE, GET, POST, OPTIONS',
     'Access-Control-Allow-headers': '*',
     'Content-Type': 'application/json'
 }
@@ -121,6 +122,52 @@ const handlePostRequests = (req, res) => {
         // finalChunk = chunk_1 + chunk_2;
         // JSON.parse();
         // JSON.stringify();
+    } else if (parsedUrl.pathname === '/users-many') {
+        let data = '';
+        req.on('data', chunk => {
+            data += chunk;
+        });
+
+        req.on('end', async () => {
+            const requestBody = JSON.parse(data);
+            if (Array.isArray(requestBody) && requestBody.length) {
+                let isValid = true;
+                requestBody.forEach(element => {
+                    if (!(element && element.name && element.age && requestBody.address)) {
+                        isValid = false;
+                    }
+                });
+                if (!isValid) {
+                    const dbResult = await insertManyUser(requestBody);
+                    if (dbResult.success) {
+                        res.writeHead(201, headers);
+                        res.end(JSON.stringify({
+                            msg: 'User is Successfully inserted',
+                            userIds: dbResult.data.insertedIds
+                        }));
+                    } else if (dbResult.error) {
+                        res.writeHead(400);
+                        res.end(JSON.stringify({
+                            error: 'Unable to create the user'
+                        }));
+                    }
+                } else {
+                    res.setHeader("Content-Type", "application/json");
+                    res.writeHead(402);
+                    res.end(JSON.stringify({ msg: 'Wrong Data Received!' }));
+                }
+            } else {
+                res.setHeader("Content-Type", "application/json");
+                res.writeHead(402);
+                res.end(JSON.stringify({ msg: 'Wrong Data Type Supplied or No Object Exists!' }));
+            }
+        });
+
+        // chunk_1 = "{\"username\"\: \"abc\","
+        // chunk_2 = "\"password\": \"QWERTy@123#\"}"
+        // finalChunk = chunk_1 + chunk_2;
+        // JSON.parse();
+        // JSON.stringify();
     }
 }
 
@@ -219,4 +266,4 @@ module.exports = requestHandler;
 
 //totalNoOfRecords - 8
 // numberOfRecordsPerPage - 3
-// Pagination UI - [1][2][3]..[10]
+// Pagination UI - [1][2][3]...[10]
