@@ -129,6 +129,11 @@ function App() {
           onChange={handlePageChange}
         />
       </div>
+      <br />
+      <br />
+      <video id="video" width="50%" controls muted="muted" autoPlay>
+        <source src='http://localhost:8080/video' type='video/mp4' />
+      </video>
     </div>
   );
 }

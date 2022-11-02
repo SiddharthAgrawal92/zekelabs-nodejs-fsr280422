@@ -1,0 +1,20 @@
+{
+  "name": "web-server-without-framework",
+  "version": "1.0.0",
+  "description": "For Web APIs Creation",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "WEB",
+    "Server",
+    "APIs"
+  ],
+  "author": "Sid",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "mongodb": "^4.11.0"
+  }
+}
