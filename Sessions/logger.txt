@@ -1,0 +1,10 @@
+{"method":"GET","url":"/","query":{},"body":{},"UserAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36","tms":"2022-11-04T14:43:44.710Z"}
+{"method":"GET","url":"/favicon.ico","query":{},"body":{},"UserAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36","tms":"2022-11-04T14:43:47.256Z"}
+{"method":"GET","url":"/favicon.ico","query":{},"body":{},"UserAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36","tms":"2022-11-04T14:43:56.653Z"}
+{"method":"GET","url":"/favicon.ico","query":{},"body":{},"UserAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36","tms":"2022-11-04T14:43:59.643Z"}
+{"method":"GET","url":"/favicon.ico","query":{},"body":{},"UserAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36","tms":"2022-11-04T14:44:01.269Z"}
+{"method":"GET","url":"/favicon.ico","query":{},"body":{},"UserAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36","tms":"2022-11-04T14:44:03.045Z"}
+{"method":"GET","url":"/","query":{},"body":{},"UserAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36","tms":"2022-11-04T14:44:04.693Z"}
+{"method":"GET","url":"/favicon.ico","query":{},"body":{},"UserAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36","tms":"2022-11-04T14:44:05.266Z"}
+{"method":"GET","url":"/users","query":{},"body":{},"UserAgent":"PostmanRuntime/7.29.2","tms":"2022-11-04T14:44:21.425Z"}
+{"method":"GET","url":"/users","query":{},"body":{},"UserAgent":"PostmanRuntime/7.29.2","tms":"2022-11-04T14:45:05.873Z"}

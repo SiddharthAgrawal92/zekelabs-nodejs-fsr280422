@@ -40,6 +40,6 @@ routes.use((req, res) => {
         </body>
     </html>
     `);
-})
+});
 
 module.exports = routes;

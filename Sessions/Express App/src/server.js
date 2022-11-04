@@ -1,21 +1,32 @@
 require('dotenv').config();
 
-const fs = require('fs');
-const express = require('express');
-const path = require('path');
-const serveIndex = require('serve-index');
-const bodyParser = require('body-parser');
-
-const app = express();
-const routes = require('./api-routes/index');
+const fs = require('fs'),
+    express = require('express'),
+    path = require('path'),
+    serveIndex = require('serve-index'),
+    bodyParser = require('body-parser'),
+    mongoose = require('mongoose'),
+    cors = require('cors'),
+    app = express(),
+    routes = require('./api-routes/index');
 
 class Server {
     constructor() {
+        this.initDb();
         this.initStaticFiles();
         this.initViewEngine();
         this.initMiddleware();
         this.initRoutes();
         this.startApp();
+    }
+
+    initDb() {
+        mongoose.connect(process.env.DB_CONNECTION_STRING);
+        const db = mongoose.connection;
+        db.on('error', console.error.bind(console, 'Error Connecting to db'));
+        db.on('open', () => {
+            console.log('You are connected to MongoDB successfully');
+        });
     }
 
     initStaticFiles() {
@@ -35,10 +46,20 @@ class Server {
         //Case 1 (Login) --> Lock --> key passed by client will be validated --> is success then move to next --> if fail then send back the error
         //Case 1 (Logging) --> logger to log the http requests
 
+        //middleware to configure cors
+        app.use(cors((req, cb) => {
+            let corsOptions = { origin: false, credentials: false };
+            if (process.env.WHITELISTED_ORIGINS.indexOf(req.headers.origin) !== -1) {
+                corsOptions.origin = true;
+                corsOptions.credentials = true;
+            }
+            cb(null, corsOptions);
+        }));
+
         //middleware to parse JSON type of content from http body
         app.use(bodyParser.json());
         app.use((req, res, next) => {
-            fs.appendFile('./logger.txt', JSON.stringify({
+            fs.appendFile(path.join(__dirname, '../logger.txt'), JSON.stringify({
                 method: req.method,
                 url: req.originalUrl,
                 query: req.query,
