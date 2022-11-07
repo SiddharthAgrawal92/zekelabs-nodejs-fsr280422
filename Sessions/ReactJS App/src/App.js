@@ -1,8 +1,34 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Pagination from 'react-js-pagination';
+import { BrowserRouter as Router, Link, Routes, Route } from 'react-router-dom';
 
-function App() {
+const App = () => (
+  <Router>
+    <Navigation />
+    <Content />
+  </Router>
+)
+
+const Navigation = () => (
+  <ul>
+    <li>
+      <Link to="/">Homepage</Link>
+    </li>
+    <li>
+      <Link to="/players">Players</Link>
+    </li>
+  </ul>
+)
+
+const Content = () => (
+  <Routes>
+    <Route exact path="/" element={<Homepage />} />
+    <Route path="/players/*" element={<Players />} />
+  </Routes>
+)
+
+const Homepage = () => {
 
   const [userList, setUserList] = useState([]);
   const [activePage, setActivePage] = useState(1);
@@ -137,5 +163,56 @@ function App() {
     </div>
   );
 }
+
+const Players = () => {
+
+  const [player, setPlayer] = useState({});
+  const [totalRecords, setTotalRecords] = useState(0);
+  const skip = useRef(0);
+
+  useEffect(() => {
+    getPlayer();
+  }, []);
+
+  const getPlayer = () => {
+    setPlayer({});
+    axios.get(`http://localhost:8080/players?skip=${skip.current}&limit=1`).then(result => {
+      if (result.status === 200
+        && result.data
+        && result.data.playerList
+        && result.data.playerList.length
+        && result.data.totalRecords) {
+        setPlayer(result.data.playerList[0]);
+        setTotalRecords(result.data.totalRecords);
+      }
+    })
+  }
+
+  return (
+    <>
+      {
+        Object.keys(player).length ?
+          <>
+            <h3>Name: {player.name}</h3>
+            <h3>Sport: {player.sport}</h3>
+            <h3>Rank: {player.rank}</h3>
+            <img src={`http://localhost:8080/public/images/${player.name}.jpeg`} />
+
+            <button disabled={skip.current === 0} onClick={() => {
+              skip.current = skip.current - 1;
+              getPlayer();
+            }}>Previous</button> &nbsp;&nbsp;&nbsp;
+            <button disabled={totalRecords === skip.current + 1} onClick={() => {
+              skip.current = skip.current + 1;
+              getPlayer();
+            }}>Next</button>
+          </>
+          :
+          'No Data Found!'
+      }
+    </>
+  )
+}
+
 
 export default App;

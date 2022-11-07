@@ -1,5 +1,6 @@
 const routes = require('express').Router();
 const usersRoutes = require('./users.routes');
+const playersRoutes = require('./players.routes');
 
 routes.get('/', (req, res) => {
     // res.status(200).send('Hello From Server!');
@@ -27,8 +28,11 @@ routes.get('/', (req, res) => {
     // res.render('index3', { title: 'Express App', content: 'This app seems to be working fine :)' });
 });
 
-//users-module routes
+//users-module routes --> http://localhost:8080/users
 routes.use('/users', usersRoutes);
+
+//players-module routes --> http://localhost:8080/players
+routes.use('/players', playersRoutes);
 
 routes.use((req, res) => {
     res.status(400).send(`
