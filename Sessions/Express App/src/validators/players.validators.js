@@ -52,6 +52,27 @@ const validateCreatePlayers = async (req, res, next) => {
 
 }
 
+const validateCreateManyPlayers = async (req, res, next) => {
+    await check('playerList', 'playerList is required').exists().run(req);
+    await check('playerList', 'playerList should be an array').isArray().run(req);
+
+    await check('playerList.*.name', 'name is required in the playerList object').exists().run(req);
+    await check('playerList.*.name', 'name should be a string in the playerList object').isString().run(req);
+
+    await check('playerList.*.sport', 'sport is required in the playerList object').exists().run(req);
+    await check('playerList.*.sport', 'sport should be a string in the playerList object').isString().run(req);
+
+    await check('playerList.*.rank', 'rank is required in the playerList object').exists().run(req);
+    await check('playerList.*.rank', 'rank should be a number in the playerList object').isNumeric().run(req);
+
+    const errors = validationResult(req);
+    if (errors.isEmpty()) {
+        next();
+    } else {
+        res.status(400).send({ errors: errors.array() });
+    }
+}
+
 const validateGetPlayers = async (req, res, next) => {
 
     await query('skip', 'skip value is invalid').isNumeric().custom((value) => value >= 0).run(req);
@@ -68,7 +89,8 @@ const validateGetPlayers = async (req, res, next) => {
 
 module.exports = {
     validateCreatePlayers,
-    validateGetPlayers
+    validateCreateManyPlayers,
+    validateGetPlayers,
 }
 
 //API - DOCUMENT

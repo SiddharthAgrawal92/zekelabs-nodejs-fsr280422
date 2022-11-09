@@ -1,8 +1,20 @@
 const Players = require('../models/players.model');
 
-const createPlayers = async (req, res) => {
+const createPlayer = async (req, res) => {
     if (req.body && req.body.length) {
-        const response = await Players.insertMany(req.body).catch(err => {
+        const response = await Players.insertOne(req.body).catch(err => {
+            console.log(err);
+            res.status(500).send({ error: 'Internal Server error' });
+        });
+        res.status(201).send({ msg: 'Records inserted successfully', result: response });
+    } else {
+        res.status(400).send({ error: 'Empty Request received' });
+    }
+}
+
+const createManyPlayers = async (req, res) => {
+    if (req.body && req.body.playerList.length) {
+        const response = await Players.insertMany(req.body.playerList).catch(err => {
             console.log(err);
             res.status(500).send({ error: 'Internal Server error' });
         });
@@ -26,6 +38,7 @@ const getPlayers = async (req, res) => {
 }
 
 module.exports = {
-    createPlayers,
+    createPlayer,
+    createManyPlayers,
     getPlayers
 }

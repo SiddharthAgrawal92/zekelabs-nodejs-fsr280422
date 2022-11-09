@@ -38,6 +38,10 @@ const Homepage = () => {
     pageRangeDisplayed: 5
   });
 
+  //user credentials
+  // "userName": "Hello123@gmail.com",
+  // "password": "Welcome@123#"
+
   useEffect(() => {
     getUsers(pagination.itemsCountPerPage, 0);
   }, []);

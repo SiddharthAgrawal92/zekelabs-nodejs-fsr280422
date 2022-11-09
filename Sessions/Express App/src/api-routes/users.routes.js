@@ -10,6 +10,8 @@ userRoutes.get('/', userControllers.getUser);
 
 //create user
 userRoutes.post('/', userControllers.createUser);
+
+
 //update user by ID
 // userRoutes.put('/:userId', (req, res) => {
 //     console.log('request body', req.body);

@@ -1,6 +1,7 @@
 const routes = require('express').Router();
 const usersRoutes = require('./users.routes');
 const playersRoutes = require('./players.routes');
+const authRoutes = require('./auth.routes');
 
 routes.get('/', (req, res) => {
     // res.status(200).send('Hello From Server!');
@@ -33,6 +34,11 @@ routes.use('/users', usersRoutes);
 
 //players-module routes --> http://localhost:8080/players
 routes.use('/players', playersRoutes);
+
+//auth-module
+// signup - http://localhost:8080/auth/signup
+// login - http://localhost:8080/auth/login
+routes.use('/auth', authRoutes);
 
 routes.use((req, res) => {
     res.status(400).send(`
