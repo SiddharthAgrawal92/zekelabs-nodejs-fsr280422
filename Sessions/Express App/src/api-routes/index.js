@@ -2,6 +2,7 @@ const routes = require('express').Router();
 const usersRoutes = require('./users.routes');
 const playersRoutes = require('./players.routes');
 const authRoutes = require('./auth.routes');
+const verifyToken = require('../middleware/verifyToken');
 
 routes.get('/', (req, res) => {
     // res.status(200).send('Hello From Server!');
@@ -30,10 +31,10 @@ routes.get('/', (req, res) => {
 });
 
 //users-module routes --> http://localhost:8080/users
-routes.use('/users', usersRoutes);
+routes.use('/users', verifyToken, usersRoutes);
 
 //players-module routes --> http://localhost:8080/players
-routes.use('/players', playersRoutes);
+routes.use('/players', verifyToken, playersRoutes);
 
 //auth-module
 // signup - http://localhost:8080/auth/signup

@@ -58,21 +58,21 @@ class Server {
 
         //middleware to parse JSON type of content from http body
         app.use(bodyParser.json());
-        
+
         //logger to log all requests to a logger.txt file
-        // app.use((req, res, next) => {
-        //     fs.appendFile(path.join(__dirname, '../logger.txt'), JSON.stringify({
-        //         method: req.method,
-        //         url: req.originalUrl,
-        //         query: req.query,
-        //         body: req.body,
-        //         UserAgent: req.headers['user-agent'],
-        //         origin: req.headers.origin,
-        //         customHeader: req.headers['custom-header'],
-        //         tms: new Date()
-        //     }) + '\n', () => { });
-        //     next();
-        // });
+        app.use((req, res, next) => {
+            fs.appendFile(path.join(__dirname, '../logger.txt'), JSON.stringify({
+                method: req.method,
+                url: req.originalUrl,
+                query: req.query,
+                body: req.body,
+                UserAgent: req.headers['user-agent'],
+                origin: req.headers.origin,
+                customHeader: req.headers['custom-header'],
+                tms: new Date()
+            }) + '\n', () => { });
+            next();
+        });
 
         //logger to log all requests to the console
         // app.use((req, res, next) => {

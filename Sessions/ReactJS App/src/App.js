@@ -2,13 +2,79 @@ import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import Pagination from 'react-js-pagination';
 import { BrowserRouter as Router, Link, Routes, Route } from 'react-router-dom';
+import Auth from './auth';
 
-const App = () => (
-  <Router>
-    <Navigation />
-    <Content />
-  </Router>
-)
+
+axios.interceptors.response.use(
+  (res) => {
+    return res;
+  },
+  async (err) => {
+    if (err.response.status === 401) {
+      console.log('Access Token Expired!!!');
+    }
+    return Promise.reject(err);
+  }
+);
+
+const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    if (Auth.getAccessToken()) {
+      setIsLoggedIn(true);
+    }
+  }, [])
+
+  //user credentials
+  // "userName": Hello123@gmail.com
+  // "password": Welcome@123#
+  const handleLogin = () => {
+    axios.post(`http://localhost:8080/auth/login`, {
+      userName: userName,
+      password: password
+    }).then(res => {
+      if (res.status === 200 && res.data && res.data.access_token && res.data.expiresIn) {
+        Auth.setAccessToken(res.data.access_token, res.data.expiresIn);
+        setIsLoggedIn(true);
+      }
+    })
+  }
+
+  return (
+    <>
+      {
+        isLoggedIn ?
+          <>
+            <button onClick={() => {
+              Auth.deleteAccessToken();
+              setIsLoggedIn(false);
+            }}>Logout</button>
+            <Router>
+              <Navigation />
+              <Content />
+            </Router>
+          </>
+          :
+          <>
+            <div>
+              <span>UserName: </span> <input onChange={(e) => {
+                setUserName(e.target.value);
+              }} type="text"></input>
+            </div>
+            <div>
+              <span>Password: </span> <input onChange={(e) => {
+                setPassword(e.target.value);
+              }} type="password"></input>
+            </div>
+            <button onClick={handleLogin}>Login</button>
+          </>
+      }
+    </>
+  )
+}
 
 const Navigation = () => (
   <ul>
@@ -38,16 +104,14 @@ const Homepage = () => {
     pageRangeDisplayed: 5
   });
 
-  //user credentials
-  // "userName": "Hello123@gmail.com",
-  // "password": "Welcome@123#"
-
   useEffect(() => {
-    getUsers(pagination.itemsCountPerPage, 0);
-  }, []);
+    getUsers(2, 0);
+  }, [])
 
   const getUsers = (limit, skip) => {
-    axios.get(`http://localhost:8080/users?limit=${limit}&skip=${skip}`).then(res => {
+    axios.get(`http://localhost:8080/users?limit=${limit}&skip=${skip}`, {
+      headers: { authorization: Auth.getAccessToken() }
+    }).then(res => {
       if (res.status === 200 && res.data) {
         if (res.data.userList) {
           setUserList(res.data.userList);
@@ -180,7 +244,11 @@ const Players = () => {
 
   const getPlayer = () => {
     setPlayer({});
-    axios.get(`http://localhost:8080/players?skip=${skip.current}&limit=1`).then(result => {
+    axios.get(`http://localhost:8080/players?skip=${skip.current}&limit=1`, {
+      headers: {
+        authorization: Auth.getAccessToken()
+      }
+    }).then(result => {
       if (result.status === 200
         && result.data
         && result.data.playerList
