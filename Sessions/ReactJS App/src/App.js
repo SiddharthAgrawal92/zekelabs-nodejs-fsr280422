@@ -2,20 +2,9 @@ import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import Pagination from 'react-js-pagination';
 import { BrowserRouter as Router, Link, Routes, Route } from 'react-router-dom';
-import Auth from './auth';
 
-
-axios.interceptors.response.use(
-  (res) => {
-    return res;
-  },
-  async (err) => {
-    if (err.response.status === 401) {
-      console.log('Access Token Expired!!!');
-    }
-    return Promise.reject(err);
-  }
-);
+//cookies
+//httpOnly 
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -23,10 +12,33 @@ const App = () => {
   const [password, setPassword] = useState('');
 
   useEffect(() => {
-    if (Auth.getAccessToken()) {
+    if (localStorage.getItem('isLoggedIn') !== 'null') {
       setIsLoggedIn(true);
     }
   }, [])
+
+  axios.interceptors.response.use(
+    (res) => {
+      return res;
+    },
+    async (err) => {
+      if (err.response?.status === 401) {
+        // setIsLoggedIn(false);
+        // localStorage.setItem('isLoggedIn', null);
+        if (err.config && err.config.url && (err.config.url !== 'http://localhost:8080/auth/login' ||
+          err.config.url !== 'http://localhost:8080/auth/refresh') && !err.config.makeCall) {
+          err.config.makeCall = true;
+          //refresh token on API failure
+          axios.get('http://localhost:8080/auth/refresh', { withCredentials: true }).then(res => {
+            if (res.status === 200 && res.data.msg) {
+              return axios(err.config);
+            }
+          })
+        }
+      }
+      return Promise.reject(err);
+    }
+  );
 
   //user credentials
   // "userName": Hello123@gmail.com
@@ -35,10 +47,10 @@ const App = () => {
     axios.post(`http://localhost:8080/auth/login`, {
       userName: userName,
       password: password
-    }).then(res => {
-      if (res.status === 200 && res.data && res.data.access_token && res.data.expiresIn) {
-        Auth.setAccessToken(res.data.access_token, res.data.expiresIn);
+    }, { withCredentials: true }).then(res => {
+      if (res.status === 200 && res.data) {
         setIsLoggedIn(true);
+        localStorage.setItem('isLoggedIn', true);
       }
     })
   }
@@ -49,8 +61,8 @@ const App = () => {
         isLoggedIn ?
           <>
             <button onClick={() => {
-              Auth.deleteAccessToken();
               setIsLoggedIn(false);
+              localStorage.setItem('isLoggedIn', null);
             }}>Logout</button>
             <Router>
               <Navigation />
@@ -110,7 +122,7 @@ const Homepage = () => {
 
   const getUsers = (limit, skip) => {
     axios.get(`http://localhost:8080/users?limit=${limit}&skip=${skip}`, {
-      headers: { authorization: Auth.getAccessToken() }
+      withCredentials: true
     }).then(res => {
       if (res.status === 200 && res.data) {
         if (res.data.userList) {
@@ -245,9 +257,7 @@ const Players = () => {
   const getPlayer = () => {
     setPlayer({});
     axios.get(`http://localhost:8080/players?skip=${skip.current}&limit=1`, {
-      headers: {
-        authorization: Auth.getAccessToken()
-      }
+      withCredentials: true
     }).then(result => {
       if (result.status === 200
         && result.data

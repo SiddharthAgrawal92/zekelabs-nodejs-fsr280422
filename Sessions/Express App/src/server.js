@@ -8,7 +8,12 @@ const fs = require('fs'),
     mongoose = require('mongoose'),
     cors = require('cors'),
     app = express(),
-    routes = require('./api-routes/index');
+    routes = require('./api-routes/index'),
+    cookieParser = require('cookie-parser'),
+    winston = require('winston'),
+    expressWinston = require('express-winston'),
+    compression = require('compression'),
+    helmet = require('helmet');
 
 class Server {
     constructor() {
@@ -46,6 +51,14 @@ class Server {
         //Case 1 (Login) --> Lock --> key passed by client will be validated --> is success then move to next --> if fail then send back the error
         //Case 1 (Logging) --> logger to log the http requests
 
+        //compression to compress the response before sending it
+        app.use(compression({
+            level: 9
+        }));
+
+        //securing the http headers
+        // app.use(helmet());
+
         //middleware to configure cors
         app.use(cors((req, cb) => {
             let corsOptions = { origin: false, credentials: false };
@@ -59,20 +72,41 @@ class Server {
         //middleware to parse JSON type of content from http body
         app.use(bodyParser.json());
 
-        //logger to log all requests to a logger.txt file
-        app.use((req, res, next) => {
-            fs.appendFile(path.join(__dirname, '../logger.txt'), JSON.stringify({
-                method: req.method,
-                url: req.originalUrl,
-                query: req.query,
-                body: req.body,
-                UserAgent: req.headers['user-agent'],
-                origin: req.headers.origin,
-                customHeader: req.headers['custom-header'],
-                tms: new Date()
-            }) + '\n', () => { });
-            next();
-        });
+        //cookie parser
+        app.use(cookieParser());
+
+        //winston logger for logging the requests
+        // app.use(expressWinston.logger({
+        //     transports: [new winston.transports.File({ filename: path.join(__dirname, './logs/request-logs.log') })],
+        //     // format: winston.format.combine(
+        //     //     winston.format.colorize(),
+        //     //     winston.format.json
+        //     // ),
+        //     msg: "HTTP {{req.method}} {{req.url}}",
+        //     ignoreRoute: function (req, res) {
+        //         if (process.env.IGNORE_ROUTES_IN_LOGGER.indexOf(req.url) > -1) {
+        //             return true;
+        //         } else {
+        //             return false;
+        //         }
+        //     },
+        //     headerBlacklist: ['cookie', 'authorization']
+        // }));
+
+        //custom logger to log all requests to a logger.txt file
+        // app.use((req, res, next) => {
+        //     fs.appendFile(path.join(__dirname, '../logger.txt'), JSON.stringify({
+        //         method: req.method,
+        //         url: req.originalUrl,
+        //         query: req.query,
+        //         body: req.body,
+        //         UserAgent: req.headers['user-agent'],
+        //         origin: req.headers.origin,
+        //         customHeader: req.headers['custom-header'],
+        //         tms: new Date()
+        //     }) + '\n', () => { });
+        //     next();
+        // });
 
         //logger to log all requests to the console
         // app.use((req, res, next) => {
