@@ -13,13 +13,19 @@ const fs = require('fs'),
     winston = require('winston'),
     expressWinston = require('express-winston'),
     compression = require('compression'),
-    helmet = require('helmet');
+    helmet = require('helmet'),
+    io = require('socket.io')(process.env.SOCKET_PORT, {
+        cors: {
+            origin: '*'
+        }
+    });
 
 class Server {
     constructor() {
         this.initDb();
         this.initStaticFiles();
         this.initViewEngine();
+        this.initSocketConnection();
         this.initMiddleware();
         this.initRoutes();
         this.startApp();
@@ -44,6 +50,33 @@ class Server {
         // app.set('view engine', 'pug');
         app.set('view engine', 'jade');
         // app.set('view engine', 'vash');
+    }
+
+    initSocketConnection() {
+        let users = {};
+        io.on('connection', clientSocket => {
+            // console.log(`Client with ID ${clientSocket.id} is connected Successfully!`);
+
+            //event 'new-user' will emit(send) the value which we are listening(capturing/getting) here
+            clientSocket.on('new-user', userName => {
+                users[clientSocket.id] = userName;
+                //emitting a message to same user
+                clientSocket.emit('chat-message', { name: 'Admin', msg: `Hello ${userName}! Welcome to our chatroom.` });
+                //different clients who are connected needs to be informed about this new user
+                clientSocket.broadcast.emit('new-user-connected', userName);
+            });
+
+            clientSocket.on('send-chat-message', msg => {
+                clientSocket.broadcast.emit('chat-message', { name: users[clientSocket.id], msg: msg });
+            })
+
+            clientSocket.on('disconnect', () => {
+                // console.log('Client Instance Disconnected');
+                // console.log(`Client with ID ${clientSocket.id} is disconnected Successfully!`);
+                clientSocket.broadcast.emit('user-disconnected', users[clientSocket.id]);
+                delete users[clientSocket.id];
+            });
+        });
     }
 
     initMiddleware() {

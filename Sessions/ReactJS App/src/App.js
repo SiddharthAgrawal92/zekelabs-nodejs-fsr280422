@@ -2,7 +2,6 @@ import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import Pagination from 'react-js-pagination';
 import { BrowserRouter as Router, Link, Routes, Route } from 'react-router-dom';
-
 //cookies
 //httpOnly 
 
