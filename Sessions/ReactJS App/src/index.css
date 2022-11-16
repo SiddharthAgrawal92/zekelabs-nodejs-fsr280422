@@ -32,3 +32,11 @@ body {
 #message-input {
     flex-grow: 1;
 }
+
+#online {
+    color: green;
+}
+
+#offline {
+    color: red;
+}

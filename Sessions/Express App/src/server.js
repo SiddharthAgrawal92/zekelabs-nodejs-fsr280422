@@ -55,7 +55,7 @@ class Server {
     initSocketConnection() {
         let users = {};
         io.on('connection', clientSocket => {
-            // console.log(`Client with ID ${clientSocket.id} is connected Successfully!`);
+            console.log(`Client with ID ${clientSocket.id} is connected Successfully!`);
 
             //event 'new-user' will emit(send) the value which we are listening(capturing/getting) here
             clientSocket.on('new-user', userName => {
@@ -68,11 +68,11 @@ class Server {
 
             clientSocket.on('send-chat-message', msg => {
                 clientSocket.broadcast.emit('chat-message', { name: users[clientSocket.id], msg: msg });
-            })
+            });
 
             clientSocket.on('disconnect', () => {
                 // console.log('Client Instance Disconnected');
-                // console.log(`Client with ID ${clientSocket.id} is disconnected Successfully!`);
+                console.log(`Client with ID ${clientSocket.id} is disconnected Successfully!`);
                 clientSocket.broadcast.emit('user-disconnected', users[clientSocket.id]);
                 delete users[clientSocket.id];
             });
@@ -184,3 +184,16 @@ new Server();
 //middleware
 //images files has to be served from the server
 //metadata files
+
+
+//### Socket ###
+// it provides a bidirectional from frontend to backend and vice versa
+// two way communication can be done between the server and the frontend
+// from single socket connection placed in the server multiple clients can get connected to the same
+// this is all done using async-programming
+
+// how to achieve it?
+//Steps for socket programming
+// 1. Server will create a socket connection
+// 2. front end will send a handshake request to the socket server
+// 3. socket will accept the request and create a channel for communication 
