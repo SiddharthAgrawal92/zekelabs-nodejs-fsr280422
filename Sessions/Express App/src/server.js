@@ -77,6 +77,7 @@ class Server {
                 delete users[clientSocket.id];
             });
         });
+        app.set('socket.io', io);
     }
 
     initMiddleware() {

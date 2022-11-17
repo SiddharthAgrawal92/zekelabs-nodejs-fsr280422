@@ -7,7 +7,6 @@ let socket = socketClient('http://localhost:9000');
 
 const Chat = () => {
     const [isUserNameSubmitted, setIsUserNameSubmitted] = useState(false);
-    const [isConnected, setIsConnected] = useState(false);
     const [input, setInput] = useState('');
     const [userName, setUserName] = useState('');
 
@@ -27,10 +26,6 @@ const Chat = () => {
 
     const signUpForChat = () => {
         setUserName('');
-        if (!isConnected) {
-            setIsConnected(true);
-            socket = socketClient('http://localhost:9000');
-        }
         //emit/send event to socket server
         socket.emit('new-user', userName);
 
@@ -64,9 +59,7 @@ const Chat = () => {
                         </form>
                         <br />
                         <button id="send-button" onClick={() => {
-                            setIsConnected(false);
-                            socket.destroy();
-                            setIsConnected(false);
+                            socket.disconnect();
                             setIsUserNameSubmitted(false);
                             document.getElementById('message-container').innerHTML = "";
                         }}>Disconnect</button>

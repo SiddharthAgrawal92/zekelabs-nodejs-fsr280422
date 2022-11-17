@@ -1,15 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
-import Chat from './Chat';
+// import App from './App';
+// import Chat from './Chat';
+// import Iot from './Iot';
+import Posts from './Posts';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   // <React.StrictMode>
   // <App />
-  <Chat />
+  //<Chat />
+  //<Iot />
+  <Posts />
   // </React.StrictMode>
 );
 
