@@ -2,6 +2,8 @@ import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import Pagination from 'react-js-pagination';
 import { BrowserRouter as Router, Link, Routes, Route } from 'react-router-dom';
+import Iot from './Iot';
+import IotFilter from './IotFilter';
 //cookies
 //httpOnly 
 
@@ -28,11 +30,11 @@ const App = () => {
           err.config.url !== 'http://localhost:8080/auth/refresh') && !err.config.makeCall) {
           err.config.makeCall = true;
           //refresh token on API failure
-          axios.get('http://localhost:8080/auth/refresh', { withCredentials: true }).then(res => {
-            if (res.status === 200 && res.data.msg) {
-              return axios(err.config);
-            }
-          })
+          // axios.get('http://localhost:8080/auth/refresh', { withCredentials: true }).then(res => {
+          //   if (res.status === 200 && res.data.msg) {
+          //     return axios(err.config);
+          //   }
+          // });
         }
       }
       return Promise.reject(err);
@@ -95,6 +97,12 @@ const Navigation = () => (
     <li>
       <Link to="/players">Players</Link>
     </li>
+    <li>
+      <Link to="/iot">Iot</Link>
+    </li>
+    <li>
+      <Link to="/iot-filter">Iot With Date Filter</Link>
+    </li>
   </ul>
 )
 
@@ -102,6 +110,8 @@ const Content = () => (
   <Routes>
     <Route exact path="/" element={<Homepage />} />
     <Route path="/players/*" element={<Players />} />
+    <Route path="/iot/*" element={<Iot />} />
+    <Route path="/iot-filter/*" element={<IotFilter />} />
   </Routes>
 )
 
