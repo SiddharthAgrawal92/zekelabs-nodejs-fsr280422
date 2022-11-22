@@ -1,4 +1,3 @@
-
 // test('multiply-two-numbers', () => {
 //     const value = 2 * 3;
 //     expect(value).toEqual(6);

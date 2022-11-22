@@ -46,7 +46,7 @@ routes.use('/users', verifyToken, usersRoutes);
 routes.use('/players', verifyToken, playersRoutes);
 
 //posts-module routes --> http://localhost:8080/posts
-routes.use('/posts', postsRoutes);
+routes.use('/posts', verifyToken, postsRoutes);
 
 //auth-module
 // signup - http://localhost:8080/auth/signup

@@ -30,3 +30,8 @@ Automation Testing - testing software is involved where tester has to write test
     5. Regression Testing --> With every feature this testing is done to check if new one has affected 
                                 the old one or not
     6. User Acceptance Testing --> End User will accept it as a market requirement or nor 
+
+
+Runtime Environment for JS - NodeJS --> framework express
+Runtime Testing environment -->  Jest, Mocha
+Assertion Libraries - Chai, Chai-HTTP

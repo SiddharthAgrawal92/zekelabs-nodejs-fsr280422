@@ -169,6 +169,8 @@ class Server {
 
 new Server();
 
+module.exports = app;
+
 
 
 // ## Misslaneous
