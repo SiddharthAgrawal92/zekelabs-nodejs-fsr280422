@@ -1,3 +1,11 @@
+//stack --> array FILO
+        // |________|
+        // |________|
+        // |________|
+        // |________|        
+        // |________|
+
+
 // unsorted = [12, 43, 6, 47, 5, 7, 8, 7, 82, 44];
 // ascending  = [5, 6, 7, 7, 8, 12, 43, 44, 47, 82]
 
@@ -6,8 +14,11 @@
 
 // time complexity in worst case is O(n2)
 
+// in best case it will be O(n)
+
+const unsortedList = [10,9,8,7,6,5,4,3,2,1];
 // const unsortedList = [4, 8, 1, 7, 3, 10, 2, 9, 5, 6];
-const unsortedList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+// const unsortedList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 let outerLoopCounter = 0;
 let innerLoopCounter = 0;
 const sortUsingBubbleSort = () => {
@@ -19,6 +30,7 @@ const sortUsingBubbleSort = () => {
         let isSorted = true;
         //inner-loop
         for (let j = 0; j < max; j++) {
+            innerLoopCounter++;
             if (unsortedList[j] > unsortedList[j + 1]) {
                 //swapping way-1
                 // let temp = unsortedList[j];
@@ -29,7 +41,6 @@ const sortUsingBubbleSort = () => {
                 [unsortedList[j], unsortedList[j + 1]] = [unsortedList[j + 1], unsortedList[j]];
                 isSorted = false;
             }
-            innerLoopCounter++;
         }
         //optimization #2 is to break the outer & inner loop if no values are swapped in first run of inner loop
         // that is if list is already sorted
